@@ -48,6 +48,17 @@
             $email_code=trim($email_code);
             
             $validated=$this->model_users->validate_email($email_address,$email_code);
+            
+            if($validated===true)
+            {
+                $this->load->view('email_activated',array('email_address'=>$email_address));
+                
+            }
+            else{
+                echo 'error giving email activated confirmation .please contact'.$this->config->item('admin_email');
+            }
+            
+            
         }
     }
 

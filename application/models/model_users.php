@@ -25,7 +25,7 @@ class Model_users extends CI_Model{
          {
              $this->set_session($firstname,$lastname,$country,$username);
              
-             //$this->send_validation_email();
+             $this->send_validation_email();
              
             
              
@@ -41,7 +41,7 @@ class Model_users extends CI_Model{
     }
     public function set_session($firstname,$lastname,$country,$username){
         
-        $sql="SELECT id FROM members WHERE  name='".$username."' LIMIT 1";
+        $sql="SELECT id,reg_time FROM members WHERE  name='".$username."' LIMIT 1";
         $result=$this->db->query($sql);
         $row=$result->row();
         
@@ -55,7 +55,7 @@ class Model_users extends CI_Model{
             "loged_in"=>0
         );
         
-       // $this->email_code= md5((string)$row->reg_time);
+        $this->email_code= md5((string)$row->reg_time);
         
         $this->session->set_userdata($session_data);
         
@@ -99,6 +99,42 @@ class Model_users extends CI_Model{
                 
                
         
+    }
+    
+    public function validate_email($email_address,$email_code){
+        
+        $sql='SELECT username,reg_time,firstname FROM members WHERE username="{$email_address}" LIMIT 1';
+        $result=  $this->db->query($sql);
+        $row=$result->row();
+        
+        if($result->num_rows()===1&&$row->firstname)
+        {
+            if(md5((string)$row->reg_time)===$email_code)
+            {
+                $result=  $this->activate_account($email_address);
+            }
+            else {
+                $result=FALSE;
+            }
+            if($result=== TRUE)
+            {
+                return true;
+            }
+            
+        }
+    }
+    public function activate_account($email_address){
+        $sql='UPDATE members SET activated=1 WHERE username="'.$email_address.'"';
+        $this->db->query($sql);
+        if($this->db->affected_rows()===1)
+        {
+            return TRUE;
+            
+        }
+        else{
+            echo 'Error when activating your account in database .please contact'.$this->config->item('admin_email');
+            return FALSE;
+        }        
     }
     
     
