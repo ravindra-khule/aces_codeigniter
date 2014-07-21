@@ -1,0 +1,1 @@
+<h1>Registration successful <?php echo $firstname?> .  <a href="<?php echo ""?>">You want login?</a></h1>
